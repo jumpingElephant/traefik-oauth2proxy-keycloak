@@ -1,0 +1,22 @@
+[global]
+checkNewVersion = false
+sendAnonymousUsage = false
+
+[providers]
+[providers.docker]
+endpoint = "unix:///var/run/docker.sock"
+exposedByDefault = false
+[providers.file]
+directory = "/etc/traefik/dynamic/"
+
+[api]
+dashboard = true
+insecure = true
+
+[entryPoints]
+[entryPoints.web]
+address = ":80"
+[entryPoints.websecure]
+address = ":443"
+
+[accessLog]

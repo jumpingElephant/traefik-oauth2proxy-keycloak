@@ -1,0 +1,102 @@
+# Access http://localhost/app to initiate a login cycle using user=admin@example.com, password=password
+# Access http://localhost/auth with the same credentials to check out the settings
+version: '3.7'
+
+services:
+
+  oauth2-proxy:
+    container_name: oauth2-proxy
+    image: quay.io/oauth2-proxy/oauth2-proxy:v6.1.1
+    command: --config /oauth2-proxy.cfg
+    hostname: oauth2-proxy
+    volumes:
+      - "./oauth2-proxy-keycloak.cfg:/oauth2-proxy.cfg"
+    networks:
+      keycloak: { }
+      httpbin: { }
+      oauth2-proxy: { }
+    ports:
+      - 4180:4180/tcp
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.oauth2-proxy.rule=PathPrefix(`/app`) || PathPrefix(`/oauth2`)"
+      - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
+      - "traefik.http.middlewares.app-stripprefix.stripprefix.prefixes=/app"
+      - "traefik.http.routers.oauth2-proxy.middlewares=app-stripprefix@docker"
+
+
+  traefik:
+    container_name: traefik
+    image: traefik:2.3.6
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik:/etc/traefik:ro
+    networks:
+      keycloak: { }
+      httpbin: { }
+      oauth2-proxy: { }
+
+  keycloak:
+    container_name: keycloak
+    image: jboss/keycloak:10.0.0
+    hostname: keycloak
+    command:
+      [
+          '-b',
+          '0.0.0.0',
+          '-Djboss.socket.binding.port-offset=1000',
+          '-Dkeycloak.migration.action=import',
+          '-Dkeycloak.migration.provider=dir',
+          '-Dkeycloak.migration.dir=/realm-config',
+          '-Dkeycloak.migration.strategy=IGNORE_EXISTING',
+      ]
+    volumes:
+      - ./keycloak:/realm-config
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: password
+    networks:
+      keycloak: { }
+    ports:
+      - 9080:9080/tcp
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.rule=PathPrefix(`/auth`)"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=9080"
+  #      - "traefik.http.middlewares.sslHeader.headers.customrequestheaders.X-Forwarded-Proto=https"
+  #      - "traefik.http.middlewares.sslHeader.headers.customrequestheaders.X-Forwarded-Port=443"
+  #      - "traefik.http.routers.keycloak.middlewares=sslHeader@docker"
+
+  httpbin:
+    container_name: httpbin
+    image: kennethreitz/httpbin:latest
+    hostname: httpbin
+    ports:
+      - 83:80
+    networks:
+      httpbin: { }
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.httpbin.rule=PathPrefix(`/httpbin`)"
+      - "traefik.http.services.httpbin.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.httpbin-stripprefix.stripprefix.prefixes=/httpbin"
+      - "traefik.http.routers.httpbin.middlewares=httpbin-stripprefix@docker"
+
+  app:
+    image: containous/whoami
+    ports:
+      - 82:80
+    networks:
+      httpbin: { }
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=PathPrefix(`/whoami`)"
+      - "traefik.http.services.app.loadbalancer.server.port=80"
+
+networks:
+  httpbin: { }
+  keycloak: { }
+  oauth2-proxy: { }
