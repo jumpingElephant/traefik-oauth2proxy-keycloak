@@ -1,1 +1,1 @@
-# traefik-oauth2proxy-keycloak
+# traefik - oauth2-proxy - keycloak
