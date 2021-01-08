@@ -1,0 +1,23 @@
+upstreams:
+  - id: whoami
+    path: /
+    uri: http://whoami
+  - id: httpbin
+    path: /httpbin
+    uri: http://httpbin
+  - id: grafana
+    path: /grafana
+    uri: http://grafana
+#injectRequestHeaders:
+#- name: X-Forwarded-Groups
+#  values:
+#  - claim: groups
+#- name: X-Forwarded-User
+#  values:
+#  -   claim: user
+#- name: X-Forwarded-Email
+#  values:
+#  - claim: email
+#- name: X-Forwarded-Preferred-Username
+#  values:
+#  - claim: preferred_username

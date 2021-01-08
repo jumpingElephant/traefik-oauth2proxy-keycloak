@@ -7,10 +7,11 @@ services:
   oauth2-proxy:
     container_name: oauth2-proxy
     image: quay.io/oauth2-proxy/oauth2-proxy:v6.1.1
-    command: --config /oauth2-proxy.cfg
+    command: --config /oauth2-proxy.cfg --alpha-config /oauth2-proxy-alpha-config.yaml
     hostname: oauth2-proxy
     volumes:
       - "./oauth2-proxy-keycloak.cfg:/oauth2-proxy.cfg"
+      - "./oauth2-proxy-alpha-config.yaml:/oauth2-proxy-alpha-config.yaml"
     networks:
       keycloak: { }
       httpbin: { }
@@ -19,7 +20,7 @@ services:
       - 4180:4180/tcp
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.oauth2-proxy.rule=PathPrefix(`/app`) || PathPrefix(`/oauth2`)"
+      - "traefik.http.routers.oauth2-proxy.rule=PathPrefix(`/app`) || PathPrefix(`/oauth2`) || PathPrefix(`/grafana`) || PathPrefix(`/whoami`)"
       - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
       - "traefik.http.middlewares.app-stripprefix.stripprefix.prefixes=/app"
       - "traefik.http.routers.oauth2-proxy.middlewares=app-stripprefix@docker"
@@ -95,6 +96,21 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.app.rule=PathPrefix(`/whoami`)"
       - "traefik.http.services.app.loadbalancer.server.port=80"
+
+  grafana:
+    image: grafana/grafana:7.3.6-ubuntu
+    ports:
+      - 3000:3000
+    networks:
+      httpbin: { }
+    environment:
+      GF_SERVER_ROOT_URL: "/grafana/"
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=PathPrefix(`/krafana`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+#      - "traefik.http.middlewares.strip-grafana.stripprefix.prefixes=/grafana"
 
 networks:
   httpbin: { }
