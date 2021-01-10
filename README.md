@@ -8,7 +8,7 @@ The architecture can be inspected on the OAuth2 Proxy [website](https://oauth2-p
 
 ## Preparation
 
-OAuth2 Proxy is used in a development version of master branch, some time after v6.1.1, to take advantage of alpha config: commit 597ffeb1217058afd71182e8cec1de670f8b6998
+OAuth2 Proxy is used in a development version of master branch, some time after v6.1.1, to take advantage of alpha config: commit [597ffeb1217058afd71182e8cec1de670f8b6998](https://github.com/oauth2-proxy/oauth2-proxy/tree/597ffeb1217058afd71182e8cec1de670f8b6998)
 
 The image used for testing can be build by running the following command after OAuth2-Proxy-repository was
 cloned:
