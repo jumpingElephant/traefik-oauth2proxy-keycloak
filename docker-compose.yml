@@ -4,28 +4,6 @@ version: '3.7'
 
 services:
 
-  oauth2-proxy:
-    container_name: oauth2-proxy
-    image: quay.io/oauth2-proxy/oauth2-proxy:v6.1.1
-    command: --config /oauth2-proxy.cfg --alpha-config /oauth2-proxy-alpha-config.yaml
-    hostname: oauth2-proxy
-    volumes:
-      - "./oauth2-proxy-keycloak.cfg:/oauth2-proxy.cfg"
-      - "./oauth2-proxy-alpha-config.yaml:/oauth2-proxy-alpha-config.yaml"
-    networks:
-      keycloak: { }
-      httpbin: { }
-      oauth2-proxy: { }
-    ports:
-      - 4180:4180/tcp
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.oauth2-proxy.rule=PathPrefix(`/app`) || PathPrefix(`/oauth2`) || PathPrefix(`/grafana`) || PathPrefix(`/whoami`)"
-      - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
-      - "traefik.http.middlewares.app-stripprefix.stripprefix.prefixes=/app"
-      - "traefik.http.routers.oauth2-proxy.middlewares=app-stripprefix@docker"
-
-
   traefik:
     container_name: traefik
     image: traefik:2.3.6
@@ -71,23 +49,38 @@ services:
   #      - "traefik.http.middlewares.sslHeader.headers.customrequestheaders.X-Forwarded-Port=443"
   #      - "traefik.http.routers.keycloak.middlewares=sslHeader@docker"
 
-  httpbin:
-    container_name: httpbin
-    image: kennethreitz/httpbin:latest
-    hostname: httpbin
+  oauth2-proxy:
+    container_name: oauth2-proxy
+    image: alex/oauth2-proxy:v6.1.2-alpha
+    command: --config /oauth2-proxy.cfg --alpha-config /oauth2-proxy-alpha-config.yaml
+    hostname: oauth2-proxy
+    volumes:
+      - "./oauth2-proxy-keycloak.cfg:/oauth2-proxy.cfg"
+      - "./oauth2-proxy-alpha-config.yaml:/oauth2-proxy-alpha-config.yaml"
+    networks:
+      keycloak: { }
+      httpbin: { }
+      oauth2-proxy: { }
     ports:
-      - 83:80
+      - 4180:4180/tcp
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.oauth2-proxy.rule=PathPrefix(`/oauth2`) || PathPrefix(`/app`) || PathPrefix(`/another-app`) || PathPrefix(`/prometheus`)"
+      - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
+
+  httpbin:
+    image: nginx:1.15.1
+    volumes:
+      - ./static-html:/usr/share/nginx/html:ro
     networks:
       httpbin: { }
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.httpbin.rule=PathPrefix(`/httpbin`)"
-      - "traefik.http.services.httpbin.loadbalancer.server.port=80"
-      - "traefik.http.middlewares.httpbin-stripprefix.stripprefix.prefixes=/httpbin"
-      - "traefik.http.routers.httpbin.middlewares=httpbin-stripprefix@docker"
+      - "traefik.http.routers.home.rule=PathPrefix(`/`)"
 
   app:
     image: containous/whoami
+    hostname: whoami
     ports:
       - 82:80
     networks:
@@ -96,6 +89,16 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.app.rule=PathPrefix(`/whoami`)"
       - "traefik.http.services.app.loadbalancer.server.port=80"
+
+  another-app:
+    image: containous/whoami
+    hostname: whoelse
+    networks:
+      httpbin: { }
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.another-app.rule=PathPrefix(`/whoelse`)"
+      - "traefik.http.services.another-app.loadbalancer.server.port=80"
 
   grafana:
     image: grafana/grafana:7.3.6-ubuntu
@@ -108,9 +111,26 @@ services:
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=PathPrefix(`/krafana`)"
+      - "traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-#      - "traefik.http.middlewares.strip-grafana.stripprefix.prefixes=/grafana"
+
+  prometheus:
+    image: prom/prometheus:v2.21.0
+    command:
+      - '--web.external-url=/prometheus/'
+      - '--web.route-prefix=/prometheus/'
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      httpbin: { }
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=PathPrefix(`/prom`)"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+      - "traefik.http.middlewares.prom-replacepathregex.replacepathregex.regex=^/prom/(.*)"
+      - "traefik.http.middlewares.prom-replacepathregex.replacepathregex.replacement=/prometheus/$$1"
+      - "traefik.http.routers.prometheus.middlewares=prom-replacepathregex@docker"
 
 networks:
   httpbin: { }
