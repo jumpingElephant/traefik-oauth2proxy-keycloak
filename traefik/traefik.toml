@@ -11,7 +11,7 @@ directory = "/etc/traefik/dynamic/"
 
 [api]
 dashboard = true
-insecure = true
+insecure = false
 
 [entryPoints]
 [entryPoints.web]
@@ -20,3 +20,7 @@ address = ":80"
 address = ":443"
 
 [accessLog]
+
+[metrics]
+[metrics.prometheus]
+entryPoint = "web" #should not be public
