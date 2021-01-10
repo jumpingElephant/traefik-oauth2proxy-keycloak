@@ -1,5 +1,3 @@
-# Access http://localhost/app to initiate a login cycle using user=admin@example.com, password=password
-# Access http://localhost/auth with the same credentials to check out the settings
 version: '3.7'
 
 services:
@@ -15,7 +13,7 @@ services:
       - ./traefik:/etc/traefik:ro
     networks:
       keycloak: { }
-      httpbin: { }
+      apps: { }
       oauth2-proxy: { }
 
   keycloak:
@@ -45,13 +43,10 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.keycloak.rule=PathPrefix(`/auth`)"
       - "traefik.http.services.keycloak.loadbalancer.server.port=9080"
-  #      - "traefik.http.middlewares.sslHeader.headers.customrequestheaders.X-Forwarded-Proto=https"
-  #      - "traefik.http.middlewares.sslHeader.headers.customrequestheaders.X-Forwarded-Port=443"
-  #      - "traefik.http.routers.keycloak.middlewares=sslHeader@docker"
 
   oauth2-proxy:
     container_name: oauth2-proxy
-    image: alex/oauth2-proxy:v6.1.2-alpha
+    image: foo
     command: --config /oauth2-proxy.cfg --alpha-config /oauth2-proxy-alpha-config.yaml
     hostname: oauth2-proxy
     volumes:
@@ -59,7 +54,7 @@ services:
       - "./oauth2-proxy-alpha-config.yaml:/oauth2-proxy-alpha-config.yaml"
     networks:
       keycloak: { }
-      httpbin: { }
+      apps: { }
       oauth2-proxy: { }
     ports:
       - 4180:4180/tcp
@@ -73,7 +68,7 @@ services:
     volumes:
       - ./static-html:/usr/share/nginx/html:ro
     networks:
-      httpbin: { }
+      apps: { }
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.home.rule=PathPrefix(`/`)"
@@ -84,7 +79,7 @@ services:
     ports:
       - 82:80
     networks:
-      httpbin: { }
+      apps: { }
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.app.rule=PathPrefix(`/whoami`)"
@@ -94,7 +89,7 @@ services:
     image: containous/whoami
     hostname: whoelse
     networks:
-      httpbin: { }
+      apps: { }
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.another-app.rule=PathPrefix(`/whoelse`)"
@@ -105,7 +100,7 @@ services:
     ports:
       - 3000:3000
     networks:
-      httpbin: { }
+      apps: { }
     environment:
       GF_SERVER_ROOT_URL: "/grafana/"
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
@@ -121,7 +116,7 @@ services:
       - '--web.route-prefix=/prometheus/'
       - '--config.file=/etc/prometheus/prometheus.yml'
     networks:
-      httpbin: { }
+      apps: { }
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     labels:
@@ -133,6 +128,6 @@ services:
       - "traefik.http.routers.prometheus.middlewares=prom-replacepathregex@docker"
 
 networks:
-  httpbin: { }
+  apps: { }
   keycloak: { }
   oauth2-proxy: { }
