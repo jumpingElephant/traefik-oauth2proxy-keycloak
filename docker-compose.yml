@@ -46,7 +46,7 @@ services:
 
   oauth2-proxy:
     container_name: oauth2-proxy
-    image: foo
+    image: alex/oauth2-proxy:v6.1.2-alpha
     command: --config /oauth2-proxy.cfg --alpha-config /oauth2-proxy-alpha-config.yaml
     hostname: oauth2-proxy
     volumes:
