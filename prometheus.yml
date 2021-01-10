@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 10s
+  external_labels:
+    monitor: 'traefik-oauth2-proxy-keycloak'
+
+scrape_configs:
+  - job_name: 'traefik'
+    static_configs:
+      - targets: [ 'traefik' ]
+
+  - job_name: 'grafana'
+    static_configs:
+      - targets: [ 'grafana:3000' ]
