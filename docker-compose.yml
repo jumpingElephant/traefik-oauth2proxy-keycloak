@@ -37,8 +37,6 @@ services:
       KEYCLOAK_PASSWORD: password
     networks:
       keycloak: { }
-    ports:
-      - 9080:9080/tcp
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.keycloak.rule=PathPrefix(`/auth`)"
@@ -55,8 +53,6 @@ services:
       keycloak: { }
       apps: { }
       oauth2-proxy: { }
-    ports:
-      - 4180:4180
 
   httpbin:
     image: nginx:1.15.1
@@ -71,8 +67,6 @@ services:
   app:
     image: containous/whoami
     hostname: whoami
-    ports:
-      - 82:80
     networks:
       apps: { }
     labels:
@@ -92,8 +86,6 @@ services:
 
   grafana:
     image: grafana/grafana:7.3.6-ubuntu
-    ports:
-      - 3000:3000
     networks:
       apps: { }
     environment:
@@ -107,8 +99,8 @@ services:
   prometheus:
     image: prom/prometheus:v2.21.0
     command:
-      - '--web.external-url=/prometheus/'
-      - '--web.route-prefix=/prometheus/'
+      - '--web.external-url=/prom/'
+      - '--web.route-prefix=/prom/'
       - '--config.file=/etc/prometheus/prometheus.yml'
     networks:
       apps: { }
@@ -118,9 +110,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.rule=PathPrefix(`/prom`)"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
-      - "traefik.http.middlewares.prom-replacepathregex.replacepathregex.regex=^/prom/(.*)"
-      - "traefik.http.middlewares.prom-replacepathregex.replacepathregex.replacement=/prometheus/$$1"
-      - "traefik.http.routers.prometheus.middlewares=prom-replacepathregex@docker,oauth-errors@file,oauth-auth@file"
+      - "traefik.http.routers.prometheus.middlewares=oauth-errors@file,oauth-auth@file"
 
 networks:
   apps: { }
