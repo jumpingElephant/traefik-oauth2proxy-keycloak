@@ -1,8 +1,10 @@
 http:
   routers:
     oauth:
-      rule: "PathPrefix(`/oauth2/`)"
+      rule: "PathPrefix(`/oauth2/`) || PathPrefix(`/links/`)"
       service: oauth-backend
+      middlewares:
+        - strip-links-prefix
 
   services:
     oauth-backend:
@@ -21,3 +23,7 @@ http:
           - "401-403"
         service: oauth-backend
         query: "/oauth2/sign_in"
+    strip-links-prefix:
+      stripPrefix:
+        prefixes:
+          - "/links"

@@ -42,12 +42,12 @@
         <h2>Menu</h2>
         <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="oauth2/sign_in">Sign in</a></li>
-            <li><a href="oauth2/sign_out">Sign out</a></li>
-            <li><a href="oauth2/sign_out?rd=http%3A%2F%2Flocalhost%2Foauth2%2Fsign_in">Sign out with redirect to Sign
+            <li><a href="/oauth2/sign_in">Sign in</a></li>
+            <li><a href="/oauth2/sign_out">Sign out</a></li>
+            <li><a href="/oauth2/sign_out?rd=http%3A%2F%2Flocalhost%2Foauth2%2Fsign_in">Sign out with redirect to Sign
                 in</a></li>
             <li>
-                <a href="oauth2/sign_out?rd=http%3A%2F%2Flocalhost%2Fauth%2Frealms%2Fmaster%2Fprotocol%2Fopenid-connect%2Flogout">Sign
+                <a href="/oauth2/sign_out?rd=http%3A%2F%2Flocalhost%2Fauth%2Frealms%2Fmaster%2Fprotocol%2Fopenid-connect%2Flogout">Sign
                     out with redirect to Keycloak logout</a></li>
         </ul>
     </nav>
@@ -67,10 +67,11 @@
                     <span class="image">
                         <img src="images/pic01.jpg" alt=""/>
                     </span>
-                    <a href="app/">
+                    <a href="/app/">
                         <h2>whoami</h2>
                         <div class="content">
                             <p>Opens containous/whoami on host whoami</p>
+                            <p>protected</p>
                         </div>
                     </a>
                 </article>
@@ -78,10 +79,11 @@
                     <span class="image">
                         <img src="images/pic02.jpg" alt=""/>
                     </span>
-                    <a href="another-app/">
+                    <a href="/another-app/">
                         <h2>who else</h2>
                         <div class="content">
                             <p>Opens containous/whoami on host whoelse</p>
+                            <p>protected</p>
                         </div>
                     </a>
                 </article>
@@ -89,7 +91,7 @@
                     <span class="image">
                         <img src="images/pic03.jpg" alt=""/>
                     </span>
-                    <a href="grafana/" target="_blank">
+                    <a href="/grafana/" target="_blank">
                         <h2>Grafana</h2>
                         <div class="content">
                             <p>The open observability platform</p>
@@ -101,7 +103,7 @@
                     <span class="image">
                         <img src="images/pic04.jpg" alt=""/>
                     </span>
-                    <a href="auth/" target="_blank">
+                    <a href="/auth/" target="_blank">
                         <h2>Keycloak</h2>
                         <div class="content">
                             <p>Open Source Identity and Access Management</p>
@@ -124,43 +126,57 @@
                     <span class="image">
                         <img src="images/pic06.jpg" alt=""/>
                     </span>
-                    <a href="app/subpath">
+                    <a href="/app/subpath">
                         <h2>subpath to whoami</h2>
                         <div class="content">
                             <p>Opens subpath to containous/whoami on host whoami</p>
                         </div>
                     </a>
                 </article>
-                <article class="style7">
+                <article class="style1">
                     <span class="image">
                         <img src="images/pic07.jpg" alt=""/>
                     </span>
-                    <a href="prom/" target="_blank">
+                    <a href="/prom/" target="_blank">
                         <h2>Prometheus</h2>
                         <div class="content">
                             <p>From metrics to insight</p>
+                            <p>protected</p>
                         </div>
                     </a>
                 </article>
-                <article class="style8">
+                <article class="style2">
                     <span class="image">
                         <img src="images/pic08.jpg" alt=""/>
                     </span>
-                    <a href="prom/graph?g0.range_input=1h&g0.expr=up&g0.tab=1" target="_blank">
+                    <a href="/prom/graph?g0.range_input=1h&g0.expr=up&g0.tab=1" target="_blank">
                         <h2>Prometheus: query up</h2>
                         <div class="content">
                             <p></p>
+                            <p>protected</p>
                         </div>
                     </a>
                 </article>
-                <article class="style9">
+                <article class="style3">
                     <span class="image">
                         <img src="images/pic09.jpg" alt=""/>
                     </span>
-                    <a href="auth/realms/master/.well-known/openid-configuration">
+                    <a href="/auth/realms/master/.well-known/openid-configuration">
                         <h2>Keycloak oidc</h2>
                         <div class="content">
                             <p>OpenID Configuration of realm master</p>
+                        </div>
+                    </a>
+                </article>
+                <article class="style4">
+                    <span class="image">
+                        <img src="images/pic10.jpg" alt=""/>
+                    </span>
+                    <a href="/links/">
+                        <h2>This</h2>
+                        <div class="content">
+                            <p>Same page, served by OAuth2 Proxy</p>
+                            <p>protected</p>
                         </div>
                     </a>
                 </article>
