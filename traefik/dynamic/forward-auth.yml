@@ -1,0 +1,23 @@
+http:
+  routers:
+    oauth:
+      rule: "PathPrefix(`/oauth2/`)"
+      service: oauth-backend
+
+  services:
+    oauth-backend:
+      loadBalancer:
+        servers:
+          - url: http://oauth2-proxy:4180
+
+  middlewares:
+    oauth-auth:
+      forwardAuth:
+        address: http://oauth2-proxy:4180/oauth2/auth
+        trustForwardHeader: true
+    oauth-errors:
+      errors:
+        status:
+          - "401-403"
+        service: oauth-backend
+        query: "/oauth2/sign_in"
